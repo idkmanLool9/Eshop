@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css?v=4" />
+<link rel="stylesheet" href="styles.css?v=5" />
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23fafafa'/%3E%3Cpath d='M11 9h7a5 5 0 0 1 0 10h-3v4h-4V9Z' fill='%230a0a0a'/%3E%3C/svg%3E" />
 </head>
 <body>
@@ -44,68 +44,6 @@
         <span class="sep">·</span>
         <span>Royalty-free license</span>
       </p>
-    </div>
-  </section>
-
-  <!-- Featured hero card -->
-  <section class="featured">
-    <div class="container">
-      <div class="featured-card" id="featuredCard">
-        <div class="featured-preview" aria-hidden="true">
-          <!-- mini airport departure board, pure CSS/HTML -->
-          <div class="board">
-            <div class="board-header">
-              <div class="board-meta">
-                <span class="airport-code">CHANGI</span>
-                <span class="terminal">TERMINAL 3</span>
-              </div>
-              <div class="board-title">DEPARTURES</div>
-              <div class="board-clock"><span id="boardClock">19:47</span></div>
-            </div>
-            <div class="board-body">
-              <div class="board-row board-row-head">
-                <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>GATE</span><span>STATUS</span>
-              </div>
-              <div class="board-row"><span class="t">19:35</span><span>MH 9148</span><span>SINGAPORE</span><span>A21</span><span class="s s-final">FINAL</span></div>
-              <div class="board-row"><span class="t">19:39</span><span>SK 2852</span><span>CAIRO</span><span>D18</span><span class="s s-final">FINAL</span></div>
-              <div class="board-row"><span class="t">19:45</span><span>IB 1151</span><span>LHR</span><span>A2</span><span class="s s-board">BOARDING</span></div>
-              <div class="board-row"><span class="t">19:45</span><span>FR 2037</span><span>BANGKOK</span><span>A24</span><span class="s s-board">BOARDING</span></div>
-              <div class="board-row"><span class="t">19:46</span><span>AI 2074</span><span>STOCKHOLM</span><span>A36</span><span class="s s-board">BOARDING</span></div>
-              <div class="board-row"><span class="t">19:52</span><span>OS 6439</span><span>NRT</span><span>B34</span><span class="s s-board">BOARDING</span></div>
-              <div class="board-row"><span class="t">19:57</span><span>VS 4673</span><span>TEL AVIV</span><span>B31</span><span class="s s-gate">TO GATE</span></div>
-              <div class="board-row"><span class="t">20:04</span><span>TG 1451</span><span>PRAGUE</span><span>A16</span><span class="s s-gate">TO GATE</span></div>
-              <div class="board-row"><span class="t">20:28</span><span>EK 9146</span><span>MIAMI</span><span>A1</span><span class="s s-delayed">DELAYED</span></div>
-              <div class="board-row"><span class="t">20:55</span><span>OZ 7233</span><span>BOGOTÁ</span><span>B40</span><span class="s s-ontime">ON TIME</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="featured-meta">
-          <span class="card-cat">Showcase · Live Systems</span>
-          <h2>Airport Departure Board</h2>
-          <p class="featured-desc">A full multi-screen airport departure / arrivals board. Edit individual flights, auto-generate traffic, switch between airports, and control everything from chat with <code>!boards</code>.</p>
-
-          <ul class="feature-list">
-            <li><span class="dot-i"></span> Multi-screen wraparound display with realistic flight rotation</li>
-            <li><span class="dot-i"></span> Admin panel: per-flight editor, bulk actions, permissions, console</li>
-            <li><span class="dot-i"></span> 16+ airport brand presets (Schiphol, CDG, DXB, FRA, HND…)</li>
-            <li><span class="dot-i"></span> Chat command <code>!boards</code> for instant access</li>
-            <li><span class="dot-i"></span> Auto-generation toggle &amp; arrivals/departures switch</li>
-          </ul>
-
-          <div class="featured-actions">
-            <div class="featured-price">
-              <span class="price-now">€39.99</span>
-              <span class="price-was">€59.99</span>
-            </div>
-            <button class="btn btn-primary" data-add="departure-board">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
-              Add to cart
-            </button>
-            <button class="btn btn-ghost" id="featuredDetailsBtn">View details</button>
-          </div>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -161,10 +99,7 @@
   </div>
 </aside>
 
-<dialog id="productModal" class="modal modal-lg">
-  <button class="icon-btn modal-close" id="productClose" aria-label="Close">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
-  </button>
+<dialog id="productModal" class="modal modal-lg" aria-labelledby="productModalTitle">
   <div class="modal-body" id="productModalBody"></div>
 </dialog>
 
@@ -180,6 +115,6 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
 </body>
 </html>

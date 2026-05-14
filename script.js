@@ -352,9 +352,55 @@ function showToast(msg) {
 const productModal = document.getElementById('productModal');
 const productModalBody = document.getElementById('productModalBody');
 
+const BOARD_FLIGHTS = [
+  ['19:35', 'MH 9148', 'SINGAPORE', 'A21', 'FINAL', 's-final'],
+  ['19:39', 'SK 2852', 'CAIRO', 'D18', 'FINAL', 's-final'],
+  ['19:45', 'IB 1151', 'LHR', 'A2', 'BOARDING', 's-board'],
+  ['19:45', 'FR 2037', 'BANGKOK', 'A24', 'BOARDING', 's-board'],
+  ['19:46', 'AI 2074', 'STOCKHOLM', 'A36', 'BOARDING', 's-board'],
+  ['19:52', 'OS 6439', 'NRT', 'B34', 'BOARDING', 's-board'],
+  ['19:57', 'VS 4673', 'TEL AVIV', 'B31', 'TO GATE', 's-gate'],
+  ['20:04', 'TG 1451', 'PRAGUE', 'A16', 'TO GATE', 's-gate'],
+  ['20:28', 'EK 9146', 'MIAMI', 'A1', 'DELAYED', 's-delayed'],
+  ['20:55', 'OZ 7233', 'BOGOTÁ', 'B40', 'ON TIME', 's-ontime'],
+];
+
+function boardMarkup() {
+  const rows = BOARD_FLIGHTS.map(([t, f, d, g, s, c]) =>
+    `<div class="board-row"><span class="t">${t}</span><span>${f}</span><span>${d}</span><span>${g}</span><span class="s ${c}">${s}</span></div>`
+  ).join('');
+  return `
+    <div class="board">
+      <div class="board-header">
+        <div class="board-meta">
+          <span class="airport-code">CHANGI</span>
+          <span class="terminal">TERMINAL 3</span>
+        </div>
+        <div class="board-title">DEPARTURES</div>
+        <div class="board-clock"><span id="boardClock">--:--</span></div>
+      </div>
+      <div class="board-body">
+        <div class="board-row board-row-head">
+          <span>TIME</span><span>FLIGHT</span><span>DESTINATION</span><span>GATE</span><span>STATUS</span>
+        </div>
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
+function tickBoardClock() {
+  const el = document.getElementById('boardClock');
+  if (!el) return;
+  const d = new Date();
+  el.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+let clockInterval;
+
 function openProduct(id) {
   const p = PRODUCTS.find(x => x.id === id);
   if (!p) return;
+
   const features = p.details?.features?.map(f =>
     `<li><span class="dot-i"></span> ${f}</li>`
   ).join('') || '';
@@ -362,64 +408,66 @@ function openProduct(id) {
   const wasPrice = p.originalPrice
     ? `<span class="price-was">${CURRENCY}${p.originalPrice.toFixed(2)}</span>`
     : '';
+  const badge = p.new
+    ? '<span class="pm-badge">New</span>'
+    : p.featured
+      ? '<span class="pm-badge">Featured</span>'
+      : '';
+
+  const previewContent = p.id === 'departure-board'
+    ? boardMarkup()
+    : `<span class="pm-emoji" aria-hidden="true">${p.emoji}</span>`;
 
   productModalBody.innerHTML = `
-    <div class="card-media" style="--media-bg:${p.bg}; border-radius: 10px; aspect-ratio: 16/8; margin-bottom: 1.2rem;">
-      <span class="emoji" style="font-size: 3.8rem;" aria-hidden="true">${p.emoji}</span>
-    </div>
-    <span class="modal-cat">${p.category}</span>
-    <h2>${p.title}</h2>
-    <p>${tagline}</p>
-    ${features ? `<ul class="modal-features">${features}</ul>` : ''}
-    <div class="modal-foot">
-      <div class="featured-price">
-        <span class="price-now">${CURRENCY}${p.price.toFixed(2)}</span>
-        ${wasPrice}
+    <button class="icon-btn modal-close" type="button" data-close-modal aria-label="Close">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>
+    </button>
+    <div class="pm">
+      <div class="pm-preview" style="--media-bg:${p.bg}">
+        ${previewContent}
       </div>
-      <button class="btn btn-primary" type="button" data-add="${p.id}" data-source="modal">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
-        Add to cart
-      </button>
+      <div class="pm-info">
+        <div class="pm-badge-row">
+          <span class="pm-cat">${p.category}</span>
+          ${badge}
+        </div>
+        <h2 id="productModalTitle">${p.title}</h2>
+        <p class="pm-tagline">${tagline}</p>
+        ${features ? `<p class="pm-section-title">What's included</p><ul class="feature-list">${features}</ul>` : ''}
+        <div class="pm-foot">
+          <div class="pm-price">
+            <span class="price-now">${CURRENCY}${p.price.toFixed(2)}</span>
+            ${wasPrice}
+          </div>
+          <button class="btn btn-primary" type="button" data-add="${p.id}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+            Add to cart
+          </button>
+        </div>
+      </div>
     </div>
   `;
+
   if (typeof productModal.showModal === 'function') productModal.showModal();
+
+  if (p.id === 'departure-board') {
+    tickBoardClock();
+    clearInterval(clockInterval);
+    clockInterval = setInterval(tickBoardClock, 30000);
+  }
 }
 
-document.getElementById('productClose').addEventListener('click', () => productModal.close());
-productModalBody.addEventListener('click', e => {
-  const t = e.target.closest('[data-add]');
-  if (t) {
-    addToCart(t.dataset.add);
+productModal.addEventListener('close', () => clearInterval(clockInterval));
+productModal.addEventListener('click', e => {
+  if (e.target === productModal) productModal.close();
+  const close = e.target.closest('[data-close-modal]');
+  if (close) productModal.close();
+  const add = e.target.closest('[data-add]');
+  if (add) {
+    addToCart(add.dataset.add);
     productModal.close();
   }
 });
-
-/* ---------- Featured card ---------- */
-const featuredCard = document.getElementById('featuredCard');
-if (featuredCard) {
-  featuredCard.addEventListener('click', e => {
-    const add = e.target.closest('[data-add]');
-    const details = e.target.closest('#featuredDetailsBtn');
-    if (add) {
-      e.stopPropagation();
-      addToCart(add.dataset.add, null);
-    } else if (details) {
-      openProduct('departure-board');
-    }
-  });
-}
-
-/* live clock for board preview */
-const boardClock = document.getElementById('boardClock');
-function tickClock() {
-  if (!boardClock) return;
-  const d = new Date();
-  const h = String(d.getHours()).padStart(2, '0');
-  const m = String(d.getMinutes()).padStart(2, '0');
-  boardClock.textContent = `${h}:${m}`;
-}
-tickClock();
-setInterval(tickClock, 30000);
 
 /* ---------- Events ---------- */
 grid.addEventListener('click', e => {
