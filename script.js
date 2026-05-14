@@ -2,6 +2,31 @@
 
 const PRODUCTS = [
   {
+    id: 'departure-board',
+    title: 'Airport Departure Board',
+    category: 'Showcase',
+    price: 39.99,
+    originalPrice: 59.99,
+    description: 'Multi-screen airport departure / arrivals board with admin panels and !boards chat command.',
+    emoji: '🛫',
+    bg: 'linear-gradient(135deg, #1a0e26 0%, #2a0742 60%, #15081f 100%)',
+    featured: true,
+    new: true,
+    details: {
+      tagline: 'A complete airport flight display system for your Roblox build.',
+      features: [
+        'Multi-screen wraparound display with realistic flight rotation',
+        'Admin panel: per-flight editor (time, gate, terminal, aircraft, status)',
+        'Bulk actions: regenerate board, clear all, auto-generation toggle',
+        'Switch between Departures and Arrivals at any time',
+        '16+ airport brand presets (AMS, CDG, DXB, FRA, HND, HKG, DOH…)',
+        'Permissions tab to manage who can edit the board',
+        'In-game console for debugging and live commands',
+        'Chat command !boards opens the admin panel instantly'
+      ]
+    }
+  },
+  {
     id: 'low-poly-sword-pack',
     title: 'Low-Poly Sword Pack',
     category: 'Weapons',
@@ -194,6 +219,7 @@ function filteredProducts() {
 function productCard(p) {
   const card = document.createElement('article');
   card.className = 'card';
+  card.dataset.product = p.id;
   const badge = p.new
     ? '<span class="badge">New</span>'
     : p.featured
@@ -322,10 +348,89 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1600);
 }
 
+/* ---------- Product detail modal ---------- */
+const productModal = document.getElementById('productModal');
+const productModalBody = document.getElementById('productModalBody');
+
+function openProduct(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (!p) return;
+  const features = p.details?.features?.map(f =>
+    `<li><span class="dot-i"></span> ${f}</li>`
+  ).join('') || '';
+  const tagline = p.details?.tagline || p.description;
+  const wasPrice = p.originalPrice
+    ? `<span class="price-was">${CURRENCY}${p.originalPrice.toFixed(2)}</span>`
+    : '';
+
+  productModalBody.innerHTML = `
+    <div class="card-media" style="--media-bg:${p.bg}; border-radius: 10px; aspect-ratio: 16/8; margin-bottom: 1.2rem;">
+      <span class="emoji" style="font-size: 3.8rem;" aria-hidden="true">${p.emoji}</span>
+    </div>
+    <span class="modal-cat">${p.category}</span>
+    <h2>${p.title}</h2>
+    <p>${tagline}</p>
+    ${features ? `<ul class="modal-features">${features}</ul>` : ''}
+    <div class="modal-foot">
+      <div class="featured-price">
+        <span class="price-now">${CURRENCY}${p.price.toFixed(2)}</span>
+        ${wasPrice}
+      </div>
+      <button class="btn btn-primary" type="button" data-add="${p.id}" data-source="modal">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+        Add to cart
+      </button>
+    </div>
+  `;
+  if (typeof productModal.showModal === 'function') productModal.showModal();
+}
+
+document.getElementById('productClose').addEventListener('click', () => productModal.close());
+productModalBody.addEventListener('click', e => {
+  const t = e.target.closest('[data-add]');
+  if (t) {
+    addToCart(t.dataset.add);
+    productModal.close();
+  }
+});
+
+/* ---------- Featured card ---------- */
+const featuredCard = document.getElementById('featuredCard');
+if (featuredCard) {
+  featuredCard.addEventListener('click', e => {
+    const add = e.target.closest('[data-add]');
+    const details = e.target.closest('#featuredDetailsBtn');
+    if (add) {
+      e.stopPropagation();
+      addToCart(add.dataset.add, null);
+    } else if (details) {
+      openProduct('departure-board');
+    }
+  });
+}
+
+/* live clock for board preview */
+const boardClock = document.getElementById('boardClock');
+function tickClock() {
+  if (!boardClock) return;
+  const d = new Date();
+  const h = String(d.getHours()).padStart(2, '0');
+  const m = String(d.getMinutes()).padStart(2, '0');
+  boardClock.textContent = `${h}:${m}`;
+}
+tickClock();
+setInterval(tickClock, 30000);
+
 /* ---------- Events ---------- */
 grid.addEventListener('click', e => {
-  const t = e.target.closest('[data-add]');
-  if (t) addToCart(t.dataset.add, t);
+  const addBtn = e.target.closest('[data-add]');
+  if (addBtn) {
+    e.stopPropagation();
+    addToCart(addBtn.dataset.add, addBtn);
+    return;
+  }
+  const card = e.target.closest('[data-product]');
+  if (card) openProduct(card.dataset.product);
 });
 cartItemsEl.addEventListener('click', e => {
   const inc = e.target.closest('[data-inc]');
