@@ -164,6 +164,9 @@ function saveCart() {
 
 /* ---------- Elements ---------- */
 const grid = document.getElementById('productGrid');
+const gridTop = document.getElementById('productGridTop');
+const sectionDivider = document.getElementById('sectionDivider');
+const restCountEl = document.getElementById('restCount');
 const filtersEl = document.getElementById('filters');
 const emptyEl = document.getElementById('emptyState');
 const cartBtn = document.getElementById('cartBtn');
@@ -216,19 +219,22 @@ function filteredProducts() {
   return list;
 }
 
-function productCard(p) {
+function productCard(p, opts = {}) {
   const card = document.createElement('article');
-  card.className = 'card';
+  card.className = 'card' + (opts.horizontal ? ' card-h' : '');
   card.dataset.product = p.id;
   const badge = p.new
     ? '<span class="badge">New</span>'
     : p.featured
       ? '<span class="badge">Featured</span>'
       : '';
+  const media = (opts.horizontal && p.id === 'departure-board')
+    ? `<div class="board-mini">${boardMarkup({ mini: true })}</div>`
+    : `<span class="emoji" aria-hidden="true">${p.emoji}</span>`;
   card.innerHTML = `
     <div class="card-media" style="--media-bg:${p.bg}">
       ${badge}
-      <span class="emoji" aria-hidden="true">${p.emoji}</span>
+      ${media}
     </div>
     <div class="card-body">
       <span class="card-cat">${p.category}</span>
@@ -246,12 +252,38 @@ function productCard(p) {
   return card;
 }
 
+function shouldShowcase() {
+  return state.filter === 'All' && !state.search && state.sort === 'featured';
+}
+
 function renderGrid() {
   const list = filteredProducts();
   grid.innerHTML = '';
-  if (!list.length) { emptyEl.hidden = false; return; }
+  gridTop.innerHTML = '';
+
+  if (!list.length) {
+    gridTop.hidden = true;
+    sectionDivider.hidden = true;
+    emptyEl.hidden = false;
+    return;
+  }
   emptyEl.hidden = true;
-  for (const p of list) grid.appendChild(productCard(p));
+
+  const showcase = shouldShowcase() && list.length > 3;
+  if (showcase) {
+    const top = list.slice(0, 3);
+    const rest = list.slice(3);
+    for (const p of top) gridTop.appendChild(productCard(p, { horizontal: true }));
+    for (const p of rest) grid.appendChild(productCard(p));
+    gridTop.hidden = false;
+    sectionDivider.hidden = false;
+    restCountEl.textContent = `${rest.length} more`;
+  } else {
+    gridTop.hidden = true;
+    sectionDivider.hidden = true;
+    for (const p of list) grid.appendChild(productCard(p));
+  }
+  tickBoardClock();
 }
 
 /* ---------- Cart ---------- */
@@ -365,10 +397,11 @@ const BOARD_FLIGHTS = [
   ['20:55', 'OZ 7233', 'BOGOTÁ', 'B40', 'ON TIME', 's-ontime'],
 ];
 
-function boardMarkup() {
-  const rows = BOARD_FLIGHTS.map(([t, f, d, g, s, c]) =>
-    `<div class="board-row"><span class="t">${t}</span><span>${f}</span><span>${d}</span><span>${g}</span><span class="s ${c}">${s}</span></div>`
-  ).join('');
+function boardMarkup(opts = {}) {
+  const rows = (opts.mini ? BOARD_FLIGHTS.slice(0, 7) : BOARD_FLIGHTS)
+    .map(([t, f, d, g, s, c]) =>
+      `<div class="board-row"><span class="t">${t}</span><span>${f}</span><span>${d}</span><span>${g}</span><span class="s ${c}">${s}</span></div>`
+    ).join('');
   return `
     <div class="board">
       <div class="board-header">
@@ -377,7 +410,7 @@ function boardMarkup() {
           <span class="terminal">TERMINAL 3</span>
         </div>
         <div class="board-title">DEPARTURES</div>
-        <div class="board-clock"><span id="boardClock">--:--</span></div>
+        <div class="board-clock"><span class="board-clock-time">--:--</span></div>
       </div>
       <div class="board-body">
         <div class="board-row board-row-head">
@@ -390,12 +423,12 @@ function boardMarkup() {
 }
 
 function tickBoardClock() {
-  const el = document.getElementById('boardClock');
-  if (!el) return;
   const d = new Date();
-  el.textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  const t = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  document.querySelectorAll('.board-clock-time').forEach(el => { el.textContent = t; });
 }
 let clockInterval;
+setInterval(tickBoardClock, 30000);
 
 function openProduct(id) {
   const p = PRODUCTS.find(x => x.id === id);
@@ -449,15 +482,8 @@ function openProduct(id) {
   `;
 
   if (typeof productModal.showModal === 'function') productModal.showModal();
-
-  if (p.id === 'departure-board') {
-    tickBoardClock();
-    clearInterval(clockInterval);
-    clockInterval = setInterval(tickBoardClock, 30000);
-  }
+  if (p.id === 'departure-board') tickBoardClock();
 }
-
-productModal.addEventListener('close', () => clearInterval(clockInterval));
 productModal.addEventListener('click', e => {
   if (e.target === productModal) productModal.close();
   const close = e.target.closest('[data-close-modal]');
@@ -470,7 +496,7 @@ productModal.addEventListener('click', e => {
 });
 
 /* ---------- Events ---------- */
-grid.addEventListener('click', e => {
+function handleGridClick(e) {
   const addBtn = e.target.closest('[data-add]');
   if (addBtn) {
     e.stopPropagation();
@@ -479,7 +505,9 @@ grid.addEventListener('click', e => {
   }
   const card = e.target.closest('[data-product]');
   if (card) openProduct(card.dataset.product);
-});
+}
+grid.addEventListener('click', handleGridClick);
+gridTop.addEventListener('click', handleGridClick);
 cartItemsEl.addEventListener('click', e => {
   const inc = e.target.closest('[data-inc]');
   const dec = e.target.closest('[data-dec]');
@@ -537,3 +565,4 @@ document.getElementById('year').textContent = new Date().getFullYear();
 renderFilters();
 renderGrid();
 renderCart();
+tickBoardClock();
