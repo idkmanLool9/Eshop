@@ -8,7 +8,7 @@ const PRODUCTS = [
     price: 9.99,
     description: '12 stylized swords. R6/R15 rigged, under 1.2k tris each.',
     emoji: '⚔️',
-    gradient: 'linear-gradient(135deg, #1a0f0f 0%, #3d1818 50%, #6b1f1f 100%)',
+    bg: 'linear-gradient(135deg, #1f1614 0%, #2a1d1a 60%, #1a1311 100%)',
     featured: true
   },
   {
@@ -18,7 +18,7 @@ const PRODUCTS = [
     price: 24.99,
     description: '60+ modular building parts with snap-to-grid alignment.',
     emoji: '🏙️',
-    gradient: 'linear-gradient(135deg, #0a1428 0%, #1a3a5c 50%, #2d6396 100%)',
+    bg: 'linear-gradient(135deg, #14181f 0%, #1c2330 60%, #131820 100%)',
     featured: true,
     new: true
   },
@@ -29,7 +29,7 @@ const PRODUCTS = [
     price: 7.49,
     description: 'Animated blaster with muzzle flash, recoil and damage script.',
     emoji: '🔫',
-    gradient: 'linear-gradient(135deg, #001a14 0%, #00382c 50%, #00604c 100%)',
+    bg: 'linear-gradient(135deg, #141a1a 0%, #1d2828 60%, #121818 100%)',
     new: true
   },
   {
@@ -39,7 +39,7 @@ const PRODUCTS = [
     price: 14.99,
     description: 'A-Chassis drift car with interior, lights and exhaust FX.',
     emoji: '🏎️',
-    gradient: 'linear-gradient(135deg, #1f0a14 0%, #4a1f3a 50%, #7e2e60 100%)',
+    bg: 'linear-gradient(135deg, #1a1418 0%, #261a22 60%, #161013 100%)',
     featured: true
   },
   {
@@ -49,7 +49,7 @@ const PRODUCTS = [
     price: 4.99,
     description: '18 stylized trees, bushes and rocks. LOD-ready.',
     emoji: '🌳',
-    gradient: 'linear-gradient(135deg, #0a1f14 0%, #1a4a2e 50%, #2e7a4a 100%)'
+    bg: 'linear-gradient(135deg, #14191a 0%, #1c2422 60%, #121615 100%)'
   },
   {
     id: 'medieval-castle',
@@ -58,7 +58,7 @@ const PRODUCTS = [
     price: 19.99,
     description: 'Modular castle: walls, towers, gates and banners.',
     emoji: '🏰',
-    gradient: 'linear-gradient(135deg, #14142e 0%, #2e2e5c 50%, #4a4a96 100%)'
+    bg: 'linear-gradient(135deg, #18181f 0%, #22222e 60%, #14141a 100%)'
   },
   {
     id: 'animated-npc-pack',
@@ -67,7 +67,7 @@ const PRODUCTS = [
     price: 12.99,
     description: '8 NPCs with idle, walk and combat animations + dialogue.',
     emoji: '🧙',
-    gradient: 'linear-gradient(135deg, #1f1428 0%, #4a2e60 50%, #7a4a96 100%)',
+    bg: 'linear-gradient(135deg, #1a161e 0%, #251f2c 60%, #15121a 100%)',
     new: true
   },
   {
@@ -77,7 +77,7 @@ const PRODUCTS = [
     price: 29.99,
     description: 'Full tycoon framework. Droppers, pads, leaderboard, DataStore.',
     emoji: '💸',
-    gradient: 'linear-gradient(135deg, #1f1a0a 0%, #4a3e1a 50%, #96802e 100%)',
+    bg: 'linear-gradient(135deg, #1c1a14 0%, #28241a 60%, #181610 100%)',
     featured: true
   },
   {
@@ -87,7 +87,7 @@ const PRODUCTS = [
     price: 17.49,
     description: 'Three-story horror build with flickering lights and SFX.',
     emoji: '👻',
-    gradient: 'linear-gradient(135deg, #14142e 0%, #1a1a3d 50%, #0a0a14 100%)'
+    bg: 'linear-gradient(135deg, #131318 0%, #1a1a22 60%, #0e0e12 100%)'
   },
   {
     id: 'racing-track-builder',
@@ -96,7 +96,7 @@ const PRODUCTS = [
     price: 22.99,
     description: 'Modular sections, checkpoints and lap-timer script.',
     emoji: '🏁',
-    gradient: 'linear-gradient(135deg, #281f0a 0%, #604a1a 50%, #96732e 100%)',
+    bg: 'linear-gradient(135deg, #1a1714 0%, #24201a 60%, #161310 100%)',
     new: true
   },
   {
@@ -106,7 +106,7 @@ const PRODUCTS = [
     price: 8.99,
     description: '20 particle effects: fire, ice, lightning, heal and more.',
     emoji: '✨',
-    gradient: 'linear-gradient(135deg, #1f0a28 0%, #4a1f5c 50%, #2e3a96 100%)'
+    bg: 'linear-gradient(135deg, #15151e 0%, #1f1d2c 60%, #11111a 100%)'
   },
   {
     id: 'pet-system',
@@ -115,7 +115,7 @@ const PRODUCTS = [
     price: 19.99,
     description: 'Server-authoritative pets: hatching, equipping, abilities.',
     emoji: '🐾',
-    gradient: 'linear-gradient(135deg, #28140a 0%, #5c2e1f 50%, #96522e 100%)',
+    bg: 'linear-gradient(135deg, #1c1714 0%, #28201a 60%, #181310 100%)',
     featured: true
   }
 ];
@@ -158,6 +158,7 @@ function renderFilters() {
   filtersEl.innerHTML = '';
   for (const cat of categories()) {
     const btn = document.createElement('button');
+    btn.type = 'button';
     btn.className = 'chip' + (state.filter === cat ? ' active' : '');
     btn.textContent = cat;
     btn.addEventListener('click', () => {
@@ -194,12 +195,12 @@ function productCard(p) {
   const card = document.createElement('article');
   card.className = 'card';
   const badge = p.new
-    ? '<span class="badge new">New</span>'
+    ? '<span class="badge">New</span>'
     : p.featured
       ? '<span class="badge">Featured</span>'
       : '';
   card.innerHTML = `
-    <div class="card-media" style="background:${p.gradient}">
+    <div class="card-media" style="--media-bg:${p.bg}">
       ${badge}
       <span class="emoji" aria-hidden="true">${p.emoji}</span>
     </div>
@@ -210,8 +211,8 @@ function productCard(p) {
         <span class="card-price">${CURRENCY}${p.price.toFixed(2)}</span>
       </div>
       <p class="card-desc">${p.description}</p>
-      <button class="add-btn" data-add="${p.id}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></svg>
+      <button class="add-btn" type="button" data-add="${p.id}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
         Add to cart
       </button>
     </div>
@@ -241,6 +242,7 @@ function cartTotal() {
 function renderCart() {
   const count = cartCount();
   cartCountEl.textContent = count;
+  cartCountEl.dataset.empty = count === 0 ? 'true' : 'false';
   cartCountInline.textContent = count ? `· ${count} item${count === 1 ? '' : 's'}` : '';
   cartTotalEl.textContent = `${CURRENCY}${cartTotal().toFixed(2)}`;
   cartItemsEl.innerHTML = '';
@@ -256,19 +258,19 @@ function renderCart() {
     const line = document.createElement('div');
     line.className = 'line';
     line.innerHTML = `
-      <div class="thumb" style="background:${p.gradient}">${p.emoji}</div>
+      <div class="thumb" style="background:${p.bg}">${p.emoji}</div>
       <div class="info">
         <strong>${p.title}</strong>
         <small>${CURRENCY}${p.price.toFixed(2)}</small>
         <div class="qty">
-          <button data-dec="${p.id}" aria-label="Decrease">−</button>
+          <button type="button" data-dec="${p.id}" aria-label="Decrease">−</button>
           <span>${qty}</span>
-          <button data-inc="${p.id}" aria-label="Increase">+</button>
+          <button type="button" data-inc="${p.id}" aria-label="Increase">+</button>
         </div>
       </div>
       <div class="line-end">
         <div class="line-price">${CURRENCY}${(p.price * qty).toFixed(2)}</div>
-        <button class="remove" data-remove="${p.id}">Remove</button>
+        <button type="button" class="remove" data-remove="${p.id}">Remove</button>
       </div>
     `;
     cartItemsEl.appendChild(line);
@@ -281,10 +283,10 @@ function addToCart(id, btn) {
   renderCart();
   if (btn) {
     btn.classList.add('added');
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Added';
+    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Added';
     setTimeout(() => {
       btn.classList.remove('added');
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5v14"/></svg> Add to cart';
+      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg> Add to cart';
     }, 1100);
   } else {
     showToast('Added to cart');
@@ -323,10 +325,7 @@ function showToast(msg) {
 /* ---------- Events ---------- */
 grid.addEventListener('click', e => {
   const t = e.target.closest('[data-add]');
-  if (t) {
-    e.stopPropagation();
-    addToCart(t.dataset.add, t);
-  }
+  if (t) addToCart(t.dataset.add, t);
 });
 cartItemsEl.addEventListener('click', e => {
   const inc = e.target.closest('[data-inc]');
@@ -369,7 +368,6 @@ document.getElementById('licenseLink').addEventListener('click', e => {
 });
 document.getElementById('licenseClose').addEventListener('click', () => licenseModal.close());
 
-/* ⌘K / Ctrl+K focuses search; Esc closes cart */
 document.addEventListener('keydown', e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
     e.preventDefault();
